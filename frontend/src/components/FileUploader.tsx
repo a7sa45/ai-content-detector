@@ -207,12 +207,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + t(`common.${sizes[i]}`);
   };
 
-  const getFileIcon = (file: File) => {
-    if (file.type.startsWith('image/')) return <ImageIcon />;
-    if (file.type.startsWith('video/')) return <VideoIcon />;
-    if (file.type.startsWith('audio/')) return <AudioIcon />;
-    return <FileIcon />;
-  };
+
 
   const getSupportLevelChip = (file: File) => {
     const fullySupported = [

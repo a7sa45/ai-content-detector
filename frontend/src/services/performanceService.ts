@@ -142,7 +142,6 @@ export class NetworkPerformanceMonitor {
     chunkUpload: boolean;
   } {
     const isSlowConnection = this.isSlowConnection();
-    const highLatency = this.metrics.latency > 1000; // أكثر من ثانية
     
     return {
       compressImages: isSlowConnection || this.metrics.uploadSpeed < 100, // أقل من 100 KB/s

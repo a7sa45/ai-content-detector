@@ -12,7 +12,7 @@ const getBaseURL = () => {
     return '/api';
   }
   // في الخادم
-  return process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/api` : 'http://localhost:5000/api';
+  return 'http://localhost:5000/api';
 };
 
 // إعداد axios
@@ -88,7 +88,7 @@ export const checkServerHealth = async () => {
 // الحصول على حالة خدمة الرفع
 export const getUploadStatus = async () => {
   try {
-    const response = await api.get('/health');
+    await api.get('/health');
     return {
       success: true,
       message: 'خدمة الرفع تعمل على Vercel',
@@ -106,7 +106,7 @@ export const getUploadStatus = async () => {
 // الحصول على حالة خدمة التحليل
 export const getAnalysisStatus = async () => {
   try {
-    const response = await api.get('/health');
+    await api.get('/health');
     return {
       success: true,
       message: 'خدمة التحليل تعمل على Vercel (مبسطة)',

@@ -73,7 +73,7 @@ export const useAnalysis = (): UseAnalysisReturn => {
       // ضغط الملف إذا كان مفعلاً وكان صورة
       let processedFile = file;
       if (compressionEnabled && fileType === 'image') {
-        const { result: compressedFile, duration } = await measurePerformance(
+        const { result: compressedFile } = await measurePerformance(
           () => compressFileBeforeUpload(file),
           'ضغط الصورة'
         );
@@ -99,7 +99,7 @@ export const useAnalysis = (): UseAnalysisReturn => {
       setUploadProgress(50);
 
       // تحليل الملف مع قياس الأداء
-      const { result: analysisData } = await measurePerformance(
+      await measurePerformance(
         () => analysisMutation.mutateAsync({
           filePath: uploadResult.file.path,
           fileType,
