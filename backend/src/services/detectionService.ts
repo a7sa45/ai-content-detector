@@ -256,15 +256,18 @@ export const detectVideoManipulation = async (
     // استخدام التحليل المبسط مباشرة (لأن ffmpeg غير متوفر)
     let advancedResult: AnalysisResult;
     
-    // تحقق من توفر ffmpeg
-    const useAdvancedAnalysis = process.env.FFMPEG_AVAILABLE === 'true';
+    // تحقق من توفر ffmpeg (افتراضياً متوفر في Railway)
+    const useAdvancedAnalysis = process.env.FFMPEG_AVAILABLE !== 'false';
     
     if (useAdvancedAnalysis) {
       try {
+        console.log('🎬 محاولة التحليل المتقدم للفيديو...');
         advancedResult = await performAdvancedVideoAnalysis(filePath, metadata);
+        console.log('✅ نجح التحليل المتقدم للفيديو');
       } catch (advancedError: any) {
-        console.log('فشل التحليل المتقدم للفيديو، سيتم استخدام التحليل المبسط:', advancedError.message);
+        console.log('⚠️ فشل التحليل المتقدم للفيديو، سيتم استخدام التحليل المبسط:', advancedError.message);
         advancedResult = await performSimpleVideoAnalysis(filePath, metadata);
+        console.log('✅ نجح التحليل المبسط للفيديو');
       }
     } else {
       console.log('استخدام التحليل المبسط للفيديو (ffmpeg غير متوفر)');
