@@ -3,6 +3,7 @@ import cors from 'cors';
 import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { errorHandler, handleUncaughtException } from './middleware/errorHandler';
 import { uploadRoutes } from './routes/upload';
 import { analyzeRoutes } from './routes/analyze';
@@ -100,33 +101,62 @@ import performanceRoutes from './routes/performance';
 app.use('/api/performance', performanceRoutes);
 
 // خدمة الملفات الثابتة للواجهة الأمامية
-const frontendPath = path.join(__dirname, '../frontend/dist');
+// في Docker: /app/frontend/dist
+// في التطوير: ../frontend/dist
+const frontendPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '../../frontend/dist')
+  : path.join(__dirname, '../frontend/dist');
 console.log('🎨 مسار الواجهة الأمامية:', frontendPath);
+console.log('🔍 هل المسار موجود:', fs.existsSync(frontendPath));
 
-// خدمة الملفات الثابتة
-app.use(express.static(frontendPath));
-
-// إعادة توجيه جميع الطرق غير API إلى index.html (للـ SPA)
-app.get('*', (req, res) => {
-  // تجاهل طلبات API
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({
-      error: 'الطريق المطلوب غير موجود',
-      code: 'NOT_FOUND'
-    });
-  }
+// خدمة الملفات الثابتة (إذا كانت موجودة)
+if (fs.existsSync(frontendPath)) {
+  console.log('✅ تم العثور على الواجهة الأمامية، سيتم خدمتها');
+  app.use(express.static(frontendPath));
   
-  // إرسال index.html للطرق الأخرى
-  res.sendFile(path.join(frontendPath, 'index.html'), (err) => {
-    if (err) {
-      console.error('خطأ في إرسال index.html:', err);
-      res.status(500).json({
-        error: 'خطأ في تحميل الصفحة',
-        code: 'FRONTEND_ERROR'
+  // إعادة توجيه جميع الطرق غير API إلى index.html (للـ SPA)
+  app.get('*', (req, res) => {
+    // تجاهل طلبات API
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        error: 'الطريق المطلوب غير موجود',
+        code: 'NOT_FOUND'
+      });
+    }
+    
+    // إرسال index.html للطرق الأخرى
+    const indexPath = path.join(frontendPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({
+        error: 'الواجهة الأمامية غير متوفرة',
+        code: 'FRONTEND_NOT_FOUND',
+        message: 'يرجى الوصول عبر /api/health للتأكد من عمل الخادم'
       });
     }
   });
-});
+} else {
+  console.log('❌ لم يتم العثور على الواجهة الأمامية في:', frontendPath);
+  
+  // معالج للطرق غير API عندما لا توجد واجهة أمامية
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        error: 'الطريق المطلوب غير موجود',
+        code: 'NOT_FOUND'
+      });
+    }
+    
+    res.status(503).json({
+      error: 'الواجهة الأمامية غير متوفرة حالياً',
+      code: 'FRONTEND_UNAVAILABLE',
+      message: 'يرجى الوصول عبر /api/health للتأكد من عمل الخادم',
+      frontendPath: frontendPath,
+      workingDirectory: process.cwd()
+    });
+  });
+}
 
 // معالج الأخطاء العام
 app.use(errorHandler);
