@@ -1,38 +1,53 @@
-# Multi-stage build for production
-FROM node:18-alpine AS builder
+# Use Node.js 18 Alpine
+FROM node:18-alpine
 
-# Build frontend
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci --only=production
-COPY frontend/ ./
-RUN npm run build
+# Install system dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    ffmpeg
 
-# Build backend
-WORKDIR /app/backend
-COPY backend/package*.json ./
-RUN npm ci --only=production
-COPY backend/ ./
-RUN npm run build
-
-# Production stage
-FROM node:18-alpine AS production
-
+# Set working directory
 WORKDIR /app
 
-# Copy built backend
-COPY --from=builder /app/backend/dist ./backend/dist
-COPY --from=builder /app/backend/node_modules ./backend/node_modules
-COPY --from=builder /app/backend/package.json ./backend/
+# Copy package files
+COPY package*.json ./
+COPY frontend/package*.json ./frontend/
+COPY backend/package*.json ./backend/
 
-# Copy built frontend
-COPY --from=builder /app/frontend/dist ./frontend/dist
+# Install all dependencies (including dev dependencies for build)
+RUN npm install
+RUN cd frontend && npm install
+RUN cd backend && npm install
+
+# Copy source code
+COPY . .
+
+# Build frontend
+RUN cd frontend && npm run build
+
+# Build backend
+RUN cd backend && npm run build
+
+# Remove dev dependencies after build
+RUN cd frontend && npm prune --production
+RUN cd backend && npm prune --production
 
 # Create uploads directory
 RUN mkdir -p uploads
 
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=5000
+ENV FFMPEG_AVAILABLE=true
+
 # Expose port
 EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
 
 # Start the application
 CMD ["node", "backend/dist/index.js"]
