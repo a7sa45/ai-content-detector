@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import dotenv from 'dotenv';
+import path from 'path';
 import { errorHandler, handleUncaughtException } from './middleware/errorHandler';
 import { uploadRoutes } from './routes/upload';
 import { analyzeRoutes } from './routes/analyze';
@@ -98,16 +99,37 @@ app.use('/api/security', securityRoutes);
 import performanceRoutes from './routes/performance';
 app.use('/api/performance', performanceRoutes);
 
-// معالج الأخطاء العام
-app.use(errorHandler);
+// خدمة الملفات الثابتة للواجهة الأمامية
+const frontendPath = path.join(__dirname, '../frontend/dist');
+console.log('🎨 مسار الواجهة الأمامية:', frontendPath);
 
-// معالج الطرق غير الموجودة
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'الطريق المطلوب غير موجود',
-    code: 'NOT_FOUND'
+// خدمة الملفات الثابتة
+app.use(express.static(frontendPath));
+
+// إعادة توجيه جميع الطرق غير API إلى index.html (للـ SPA)
+app.get('*', (req, res) => {
+  // تجاهل طلبات API
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      error: 'الطريق المطلوب غير موجود',
+      code: 'NOT_FOUND'
+    });
+  }
+  
+  // إرسال index.html للطرق الأخرى
+  res.sendFile(path.join(frontendPath, 'index.html'), (err) => {
+    if (err) {
+      console.error('خطأ في إرسال index.html:', err);
+      res.status(500).json({
+        error: 'خطأ في تحميل الصفحة',
+        code: 'FRONTEND_ERROR'
+      });
+    }
   });
 });
+
+// معالج الأخطاء العام
+app.use(errorHandler);
 
 // إعداد معالجة الأخطاء غير المتوقعة
 handleUncaughtException();
