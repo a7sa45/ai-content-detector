@@ -55,7 +55,7 @@ const SimpleFileUploader: React.FC<SimpleFileUploaderProps> = ({
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
     onDrop,
-    accept: acceptedFileTypes,
+    accept: acceptedFiles,
     maxFiles: 1,
     maxSize: 52428800, // 50MB
     disabled: isAnalyzing,
