@@ -21,6 +21,7 @@ import {
 import {
   CloudUpload as UploadIcon,
   Compress as CompressIcon,
+  AudioFile as AudioIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
