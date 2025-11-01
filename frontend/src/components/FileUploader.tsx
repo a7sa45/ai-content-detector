@@ -20,10 +20,6 @@ import {
 } from '@mui/material';
 import {
   CloudUpload as UploadIcon,
-  InsertDriveFile as FileIcon,
-  Image as ImageIcon,
-  VideoFile as VideoIcon,
-  AudioFile as AudioIcon,
   Compress as CompressIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
