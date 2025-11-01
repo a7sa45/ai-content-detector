@@ -1,0 +1,93 @@
+/* إعدادات RTL قوية للنصوص العربية */
+
+/* إجبار RTL على جميع العناصر */
+html, body, #root {
+  direction: rtl !important;
+}
+
+* {
+  direction: rtl !important;
+}
+
+/* تصحيح محاذاة النصوص */
+.MuiTypography-root {
+  direction: rtl !important;
+}
+
+/* النصوص العادية من اليمين */
+.MuiTypography-body1,
+.MuiTypography-body2,
+.MuiTypography-h3,
+.MuiTypography-h4,
+.MuiTypography-h5,
+.MuiTypography-h6 {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* العناوين الرئيسية في المنتصف */
+.MuiTypography-h1,
+.MuiTypography-h2 {
+  text-align: center !important;
+  direction: rtl !important;
+}
+
+/* تصحيح اتجاه المكونات */
+.MuiBox-root,
+.MuiContainer-root,
+.MuiCard-root,
+.MuiCardContent-root,
+.MuiStack-root {
+  direction: rtl !important;
+}
+
+/* تصحيح اتجاه الأزرار */
+.MuiButton-root {
+  direction: rtl !important;
+}
+
+/* تصحيح اتجاه النصوص في الصناديق */
+.MuiBox-root p,
+.MuiBox-root span,
+.MuiBox-root div {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* العناوين المركزة */
+.MuiBox-root[style*="text-align: center"] .MuiTypography-root {
+  text-align: center !important;
+}
+
+/* تصحيح اتجاه القوائم */
+ul, ol, li {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تصحيح اتجاه النماذج */
+.MuiFormControl-root,
+.MuiTextField-root,
+.MuiInputBase-root {
+  direction: rtl !important;
+}
+
+/* تصحيح اتجاه التنبيهات */
+.MuiAlert-root {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* تصحيح اتجاه شريط التقدم */
+.MuiLinearProgress-root {
+  direction: ltr !important; /* شريط التقدم يبقى من اليسار لليمين */
+}
+
+/* تصحيح اتجاه الـ Stack */
+.MuiStack-root {
+  direction: rtl !important;
+}
+
+.MuiStack-root[style*="flex-direction: row"] {
+  flex-direction: row-reverse !important;
+}
