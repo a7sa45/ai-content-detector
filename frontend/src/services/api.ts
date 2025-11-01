@@ -1,9 +1,19 @@
 import axios from 'axios';
 import { AnalyzeResponse } from '../types';
 
+// تحديد الـ base URL حسب البيئة
+const getBaseURL = () => {
+  // في الإنتاج، استخدم نفس الدومين
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return '/api';
+  }
+  // في التطوير، استخدم localhost
+  return 'http://localhost:5000/api';
+};
+
 // إعداد axios
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: getBaseURL(),
   timeout: 300000, // 5 دقائق للتحليل
 });
 
